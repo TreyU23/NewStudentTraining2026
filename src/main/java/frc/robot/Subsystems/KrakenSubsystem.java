@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -85,6 +86,9 @@ public class KrakenSubsystem extends SubsystemBase {
     }
 
     private void motorConfigs(TalonFXConfigurator config) {
+        config.apply(new TalonFXConfiguration());
+            //ResetSafePeramiters
+
         config.apply(new CurrentLimitsConfigs()
             .withStatorCurrentLimit(Kraken.kStatorCurrent)
             .withSupplyCurrentLimit(Kraken.kSupplyCurrent)
