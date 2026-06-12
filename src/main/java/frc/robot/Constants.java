@@ -18,4 +18,18 @@ public class Constants {
 
         public static final double kTolerance = 0.15;
     }
+
+    public class SparkMax {
+        public static final int kMotorID = 2;
+        public static final double kStatorCurrent = 50.0;
+
+        public static final double kP = 1.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final double kForwardLimit = 100.0;
+        public static final double kReverseLimit = 0.0;
+
+        public static final double kTolerance = 0.15;
+    }
 }
