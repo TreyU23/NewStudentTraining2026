@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Subsystems.CtreElevatorSubsystem;
 import frc.robot.Subsystems.KrakenSubsystem;
+import frc.robot.Subsystems.RevElevatorSubsystem;
 import frc.robot.Subsystems.SparkMaxSubsystem;
 
 /**
@@ -27,6 +29,10 @@ public class RobotContainer {
   private final KrakenSubsystem m_kraken = new KrakenSubsystem(Constants.Kraken.kMotorID);
   /** Subsystem that controls the Spark MAX motor. */
   private final SparkMaxSubsystem m_sparkMax = new SparkMaxSubsystem(Constants.SparkMax.kMotorID);
+  /** Example CTRE elevator that uses Motion Magic. */
+  private final CtreElevatorSubsystem m_ctreElevator = new CtreElevatorSubsystem(Constants.CtreElevator.kMotorID);
+  /** Example REV elevator that uses MAXMotion. */
+  private final RevElevatorSubsystem m_revElevator = new RevElevatorSubsystem(Constants.RevElevator.kMotorID);
 
   /** Creates the robot container and installs all controller bindings. */
   public RobotContainer() {
@@ -78,6 +84,35 @@ public class RobotContainer {
     conditional
         .onTrue(m_operatorController.a().getAsBoolean() ? m_kraken.setPositionCmd(50.0) : m_sparkMax.setPositionCmd(50.0));
     */
+
+    // Elevator controls are intentionally on the operator controller so they do
+    // not overlap with the existing driver motor examples above. The START
+    // button is an enable gate, BACK disables and stops both elevators, and B is
+    // a quick stop that does not change the enable state.
+    m_operatorController.start()
+        .onTrue(m_ctreElevator.allowMovementCmd(true).alongWith(m_revElevator.allowMovementCmd(true)));
+    m_operatorController.back()
+        .onTrue(m_ctreElevator.allowMovementCmd(false).alongWith(m_revElevator.allowMovementCmd(false)));
+    m_operatorController.b()
+        .onTrue(m_ctreElevator.stopCmd().alongWith(m_revElevator.stopCmd()));
+
+    // POV directions send both example elevators to matching clamped setpoints.
+    // Use only one of these elevator subsystems on a real robot unless each is
+    // wired to a separate mechanism.
+    m_operatorController.povDown()
+        .onTrue(m_ctreElevator.setHeightCmd(Constants.CtreElevator.kHomeHeight)
+            .alongWith(m_revElevator.setHeightCmd(Constants.RevElevator.kHomeHeight)));
+    m_operatorController.povLeft()
+        .onTrue(m_ctreElevator.setHeightCmd(Constants.CtreElevator.kLowHeight)
+            .alongWith(m_revElevator.setHeightCmd(Constants.RevElevator.kLowHeight)));
+    m_operatorController.povRight()
+        .onTrue(m_ctreElevator.setHeightCmd(Constants.CtreElevator.kMidHeight)
+            .alongWith(m_revElevator.setHeightCmd(Constants.RevElevator.kMidHeight)));
+    m_operatorController.povUp()
+        .onTrue(m_ctreElevator.setHeightCmd(Constants.CtreElevator.kHighHeight)
+            .alongWith(m_revElevator.setHeightCmd(Constants.RevElevator.kHighHeight)));
+    m_operatorController.y()
+        .onTrue(m_ctreElevator.zeroPositionCmd().alongWith(m_revElevator.zeroPositionCmd()));
   }
 
   /**
